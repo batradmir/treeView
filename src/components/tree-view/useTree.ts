@@ -61,16 +61,31 @@ export function useTree(nodes: TreeNode[]) {
   const clearSelectedAll = () => {
     selectedNodes.value.clear()
   }
+  const openNode = (node: TreeNode) => {
+    openedNodes.value.add(node[NODE_KEY]);
+  };
+
+  const closeNode = (node: TreeNode) => {
+    openedNodes.value.delete(node[NODE_KEY]);
+  };
+
+  const isNodeOpened = (node: TreeNode) => {
+    if (!validateNode(node)) return false;
+
+    return openedNodes.value.has(node[NODE_KEY]);
+  };
+
 
   const handleToggle = (node: TreeNode) => {
-    if (!validateNode(node)) return
+    if (!validateNode(node)) return;
 
-    if (openedNodes.value.has(node[NODE_KEY])) {
-      openedNodes.value.delete(node[NODE_KEY])
+    if (isNodeOpened(node)) {
+      closeNode(node);
     } else {
-      openedNodes.value.add(node[NODE_KEY])
+      openNode(node);
     }
-  }
+  };
+
 
   const handleSelection = (node: TreeNode) => {
     if (!validateNode(node)) return
@@ -130,11 +145,7 @@ export function useTree(nodes: TreeNode[]) {
     }
   }
 
-  const isNodeOpened = (node: TreeNode) => {
-    if (!validateNode(node)) return false
 
-    return openedNodes.value.has(node[NODE_KEY])
-  }
 
   const isNodeSelected = (node: TreeNode) => {
     if (!validateNode(node)) return false
@@ -164,6 +175,25 @@ export function useTree(nodes: TreeNode[]) {
 
     return !!node.children?.length
   }
+
+  const openNodeAndParents = (node: TreeNode) => {
+    const nodeId = node[NODE_KEY];
+
+    openedNodes.value.add(nodeId);
+
+    const parentId = parentMap.value.get(nodeId);
+
+    if (
+        parentId !== null &&
+        parentId !== undefined &&
+        !openedNodes.value.has(parentId)
+    ) {
+      const parentNode = nodeMap.value.get(parentId);
+      if (parentNode) {
+        openNodeAndParents(parentNode);
+      }
+    }
+  };
 
   const validateNode = (node: TreeNode) => {
     if (!nodeMap.value.has(node[NODE_KEY])) {
@@ -195,5 +225,6 @@ export function useTree(nodes: TreeNode[]) {
     clearSelectedAll,
     hasChildren,
     handleSelection,
+    openNodeAndParents
   }
 }

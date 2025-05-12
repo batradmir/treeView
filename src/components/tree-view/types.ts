@@ -24,4 +24,5 @@ export interface TreeComposable {
   isNodeSelected: (node: TreeNode) => boolean
   isNodeIndeterminate: (node: TreeNode) => boolean
   hasChildren: (node: TreeNode) => boolean | undefined
+  openNodeAndParents: (node: TreeNode) => void
 }

@@ -8,7 +8,7 @@ const nodes = ref(generateTree())
 
 const treeViewRef = useTemplateRef<InstanceType<typeof TreeView>>('tree-view')
 
-const selectedNodes = computed(() => treeViewRef.value?.selectedNodes)
+const selectedNodes = computed(() => Array.from(treeViewRef.value?.selectedNodes.values() ?? []))
 </script>
 
 <template>

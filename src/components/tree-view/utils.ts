@@ -25,6 +25,45 @@ export const filterTree = (nodes: TreeNode[], searchTerm: string): TreeNode[] =>
     .filter(Boolean) as TreeNode[]
 }
 
+export const findNodesByTerm = (
+    nodes: TreeNode[],
+    searchTerm: string
+): TreeNode[] => {
+  if (!searchTerm.trim()) return [];
+
+  const term = searchTerm.trim().toLowerCase()
+
+  const foundNodes: TreeNode[] = [];
+
+  const findNodes = (node: TreeNode) => {
+    if (node.label.toLowerCase().includes(term)) {
+      foundNodes.push(node);
+    }
+
+    if (node.children) {
+      node.children.forEach((child) => findNodes(child));
+    }
+  };
+
+  nodes.forEach((node) => findNodes(node));
+
+  return foundNodes;
+};
+
+export const highlightMatch = (text: string, searchTerm: string): string => {
+  if (!searchTerm) return text
+  const term = searchTerm.trim().toLowerCase()
+  const termIndex = text.toLowerCase().indexOf(term)
+
+  if (termIndex === -1) return text
+
+  const before = text.substring(0,termIndex)
+  const match = text.substring(termIndex,termIndex + term.length)
+  const after = text.substring(termIndex + term.length)
+
+  return `${before}<span style="background-color: #ccccbe">${match}</span>${after}`
+}
+
 export const areAllKeyUnique = (tree: TreeNode[]): boolean => {
   const idSet = new Set<TreeNodeId>()
 
