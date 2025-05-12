@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import type { TreeNode, TreeNodeId } from '@/components/tree-view/types.ts'
+import type { TreeNode } from '@/components/tree-view/types.ts'
 import { SYMBOL_TREE_VIEW } from '@/components/tree-view/symbol.ts'
 import BaseIcon from '@/components/base-icon/BaseIcon.vue'
 
 const { node } = defineProps<{
   node: TreeNode
-  openNodes: Set<TreeNodeId>
-  selectedNodes: Set<TreeNodeId>
   selectable: boolean
+}>()
+
+
+defineSlots<{
+  label(props: { node: TreeNode }): any
 }>()
 
 const treeState = inject(SYMBOL_TREE_VIEW)!
@@ -57,11 +60,9 @@ const isIndeterminate = computed(() => isNodeIndeterminate(node))
         v-for="child in node.children"
         :key="child.id"
         :node="child"
-        :open-nodes="openNodes"
-        :selected-nodes="selectedNodes"
         :selectable="selectable"
       >
-        <template #label="{ node: slotNode }">
+        <template #label="{ node: slotNode } ">
           <slot name="label" :node="slotNode" />
         </template>
       </tree-node-item>

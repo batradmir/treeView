@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 import type { IconName } from '@/components/base-icon/types.ts'
 
-const { name, size = 16 } = defineProps<{
-  name: IconName
+const { name = 'star', size = 16 } = defineProps<{
+  name?: IconName
   size?: number
 }>()
 

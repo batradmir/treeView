@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, provide, readonly, ref } from 'vue'
-import { areAllKeyUnique, filterTree } from '@/components/tree-view/utils.ts'
+import {computed, provide, readonly, ref, watch} from 'vue'
+import {areAllKeyUnique, filterTree, findNodesByTerm, highlightMatch} from '@/components/tree-view/utils.ts'
 import type { TreeNode } from '@/components/tree-view/types.ts'
 import TreeNodeItemNew from '@/components/tree-view/TreeNodeItem.vue'
 import { useTree } from '@/components/tree-view/useTree.ts'
@@ -24,11 +24,28 @@ const filteredTree = computed(() => {
   return filterTree(nodes, String(search.value.modelValue))
 })
 
+watch(
+    () => search.value.modelValue,
+    () => {
+      collapseAll();
+
+      const foundNodes = findNodesByTerm(
+          filteredTree.value,
+          String(search.value.modelValue)
+      );
+
+      for (const node of foundNodes) {
+        openNodeAndParents(node);
+      }
+    }
+);
+
 const treeState = useTree(nodes)
 provide(SYMBOL_TREE_VIEW, treeState)
 
-const { openedNodes, selectedNodes, expandAll, collapseAll, selectAll, clearSelectedAll } =
+const { selectedNodes, expandAll, collapseAll, selectAll, clearSelectedAll,openNodeAndParents } =
   treeState
+
 
 defineExpose({
   selectedNodes: readonly(selectedNodes),
@@ -56,13 +73,11 @@ defineExpose({
           v-for="node in filteredTree"
           :key="node[NODE_KEY]"
           :node="node"
-          :open-nodes="openedNodes"
-          :selected-nodes="selectedNodes"
           :selectable="selectable"
         >
           <template #label="{ node: slotNode }">
             <slot name="label" :node="slotNode">
-              <base-icon :name="slotNode.icon" :size="20" /> {{ slotNode.label }}
+              <base-icon :name="slotNode.icon" :size="20" /> <span v-html="highlightMatch(slotNode.label,search.modelValue)"/>
             </slot>
           </template>
         </tree-node-item-new>
